@@ -1,0 +1,359 @@
+---
+title: "P1 Part1 and 2 Feb"
+author: "JW"
+output: html_document
+params: list( "January 2020", "February 2020")
+
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = params$printcode)
+```
+
+```{r seed}
+set.seed(41)
+```
+
+```{r libraries}
+library(data.table)
+library(DT)
+library(flexdashboard)
+library(shiny)
+library(rmarkdown)
+library(knitr)
+library(Hmisc)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+
+assignInNamespace("cedta.override", c(data.table:::cedta.override,"rmarkdown"), "data.table")
+opts_chunk$set(echo = FALSE, comment="", warning = FALSE, message = FALSE, tidy.opts=list(width.cutoff=55), tidy = TRUE)
+
+```
+
+```{r constants}
+
+
+```
+
+```{r functions}
+round.numerics <- function(x, digits){
+  if(is.numeric(x)){
+    x <- round(x = x, digits = digits)
+  }
+  return(x)
+}
+```
+
+
+```{r load_data}
+customers_dat<-fread(input = 'customers.csv')
+products_dat <-fread(input = "products.csv")
+#trans_Jan <-fread(input = "transactions_1.csv")
+trans_Feb <-fread(input = 'transactions_2.csv')
+views_Feb <-fread(input="views_2.csv")
+#views_Jan <-fread(input="views_1.csv")
+```
+
+
+```{r clean_data}
+#na.omit(customers_dat)
+#na.omit(products_dat)
+#na.omit(trans_Feb)
+#na.omit(views_Feb)
+```
+
+
+
+## Part 1:  Summary {.tabset}
+
+This part of the report will be directed to your internal team at the consulting company.  It is intended to document the sources of information that were used in the project.  It will also describe the data in less technical terms to team members who are not data scientists.  If another member of the team joins the project later, they will rely on your descriptions to gain familiarity with the data.
+
+### Customers
+
+```{r customers}
+summary(customers_dat)
+head(customers_dat)
+nrow(customers_dat)
+
+
+region <-customers_dat[!duplicated(customers_dat$region), ]
+summary(region)
+range(customers_dat$age)
+range(customers_dat$income)
+```
+The customers data includes 100000 female and male observations from 4 different regions, Northeast, Midwest, South, West. All the observed individuals age from 18 years old to 65 years old, and their average income level is 66362, ranging from 15000 to 441000.
+
+
+### Products
+
+```{r products}
+summary(products_dat)
+head(products_dat)
+```
+The product data contains the information of 8637 products wich specific product_id, the average price of these product is 82.35, and the highest price is 368.32, the lowest price is 13.99
+
+### Views
+
+```{r views}
+summary(views_Feb)
+head(views_Feb)
+nrow(views_Feb)
+```
+The January views data in January contains 4474131 observations' time records and the February veiws data contains 4190459 observations' time records.
+
+### Transactions
+
+```{r transactions}
+summary(trans_Feb)
+head(trans_Feb)
+```
+The January transactions data contains 119287 customers' information, which is related with transaction time records and transaction quantity. The highest purchase frequency is 5 products and customers buy 1.781 product on average. 
+
+The January transactions data contains 112158 customers' information, which is related with transaction time records and transaction quantity. The highest purchase frequency is 5 products and customers buy 1.778 product on average. 
+
+
+
+
+## Part 2:  Specific Questions {.tabset}
+
+This part of the report will be directed to product managers throughout the client's company.  The idea is to give them the useful information they need to act on the specific questions they posed.  Plan your communication accordingly.
+
+### Q1
+
+#### Question
+
+During the first week of the month, what were the 10 most viewed products?  Show the results in a table with the product's identifier, category, and count of the number of views.
+
+merge2<-merge2[order(merge2$N),]
+merge2
+#### Answer
+```{r part2_q1}
+is.data.table(views_Feb)
+views_Feb$time<-as.Date(views_Feb$time)
+views1<-views_Feb[time>='2020-02-01'&time<='2020-02-07']
+views1
+nrow(views1)
+
+
+merge0<-merge(products_dat,views1,by="product_id",all=T)
+merge0
+
+merge0<-merge0[, .N, by = c('product_id','category')]
+
+merge0[order(-N)]
+```
+
+### Q2
+
+#### Question
+
+During the whole month, what were the 10 most viewed products for each category?  Show the results in separate tables by category.  Including only the product's identifier and the count of the number of views.
+
+
+#### Answer {.tabset}
+
+```{r part2_q2_overall_calculations}
+merge<-merge(products_dat,views_Feb,by="product_id",all=T)
+merge
+```
+
+##### Shirt
+
+```{r part2_q2_shirt}
+shirt<-merge[category=="shirt",.(count= .N), by = c("product_id")]
+shirt<-shirt[order(-count)]
+head(shirt,10)
+```
+
+##### Pants
+
+```{r part2_q2_pants}
+pants<-merge[category=="pants",.(count= .N), by = c("product_id")]
+pants<-pants[order(-count)]
+head(pants,10)
+```
+
+##### Coat
+
+```{r part2_q2_coat}
+Coat<-merge[category=="coat",.(count= .N), by = c("product_id")]
+Coat<-Coat[order(-count)]
+head(Coat,10)
+```
+
+##### Shoes
+
+```{r part2_q2_shoes}
+Shoes<-merge[category=="shoes",.(count= .N), by = c("product_id")]
+Shoes<-Shoes[order(-count)]
+head(Shoes,10)
+```
+
+##### Hat
+
+```{r part2_q2_hat}
+hat<-merge[category=="hat",.(count= .N), by = c("product_id")]
+hat<-hat[order(-count)]
+head(hat,10)
+```
+
+
+### Q3
+
+#### Question
+
+What was the total revenue for each category of product during the month?  Show the results in a single table sorted in decreasing order.
+
+#### Answer
+
+```{r part2_q3}
+
+merge3<-merge(products_dat,trans_Feb,all=T)
+merge3<-merge3[,revenue:=(price*quantity)]
+merge3
+merge0<-merge3[,.(total_revenue=sum(revenue)), by = c("category")]
+merge0[order(-total_revenue)]
+merge0
+```
+
+### Q4
+
+#### Question
+
+Among customers with at least one transaction, show the average, median, and standard deviation of the customers' monthly spending on the site.
+
+#### Answer
+
+```{r part2_q4}
+spending<-"price*quantity"
+trans_Feb[,spending:=price*quantity,by =customer_id]
+trans_Feb[quantity>=1, .(average_spending=mean(spending),medians_pending=median(spending),st.dev_spending=sd(spending)),]
+```
+
+### Q5
+
+#### Question
+
+What is the percentage distribution of spending by gender?  Show the amount of revenue and the percentage.
+
+#### Answer
+
+```{r part2_q5}
+merge5<-merge(customers_dat,trans_Feb, by ='customer_id')
+merge5<-merge5[,.(monthly_spending=price*quantity),by = customer_id]
+spending<-merge(merge5,customers_dat)
+dat0 <- spending[, .(spending=sum(monthly_spending)), by = gender]
+dat0$percentage_distribution<- prop.table(dat0$spending)
+dat0
+```
+
+### Q6
+
+#### Question
+
+Using linear regression, what is the effect of an extra ten thousand dollars of income on monthly spending for a customer while adjusting for age, gender, and region?
+
+#### Answer
+
+```{r part2_q6}
+transF<-trans_Feb[,.(monthly_spending=sum(price*quantity)),by = 'customer_id']
+dat6<-merge(transF,customers_dat,by=c('customer_id'))
+model6 = lm(monthly_spending~income+age+gender+region,data=dat6)
+summary(model6)
+coef(model6)
+0.001015786 *10000
+```
+
+
+### Q7
+
+#### Question
+
+Among customers who viewed at least 1 product, how many had at least one purchase during the month?  Show the total number and as a percentage of the users with a view.
+
+#### Answer
+
+```{r part2_q7}
+is.data.table(views_Feb)
+summary(viewdat<-views_Feb[,.(count=.N),by='customer_id'])
+count(unique(viewdat,by='customer_id'))
+summary(transdat<-trans_Feb[,.(count=.N),by='customer_id'])
+count(unique(transdat,by='customer_id'))
+count(unique(transdat,by='customer_id'))/count(unique(viewdat,by='customer_id'))
+```
+
+### Q8
+
+#### Question
+
+Now let's look at the viewing habits in different age groups, including 18-34, 35-49, 50-64, and 65+.  Within each group, what were the mean, median, and standard deviation for the number of unique products viewed per customer?
+
+#### Answer
+
+```{r part2_q8}
+customers_dat<-fread(input = 'customers.csv')
+views_Feb <-fread(input="views_2.csv")
+customers_dat$age<-cut2(customers_dat$age,c(34,35,49,50,64,65,65),minmax=TRUE)
+dat8<-merge(customers_dat,views_Feb,by="customer_id")
+dat8<-dat8[,.N,by=c('customer_id','product_id','age')]
+dat<-dat8[, .(count= .N),by = c("product_id","customer_id","age")]
+dat<-dat[,.(count=.N),by = c("age","customer_id")]
+dat[,.(mean=mean(count),median=median(count),std=sd(count)),by = c("age")]
+```
+
+
+
+
+
+### Q9 
+
+#### Question
+
+What is the correlation between a user's total page views and total spending?  For customers without a transaction, include their spending as zero.
+
+#### Answer
+
+```{r part2_q9}
+totalspending<-trans_Feb[,.(spending=sum((price*quantity))),by=c("customer_id")]
+totalspending<-totalspending[,.(count=.N),by=c("customer_id","spending")]
+totalviews<-views_Feb[,.(pageviews=.N),by= c("customer_id")]
+dat9<-merge(totalspending,totalviews,by=c("customer_id"),all.y=TRUE)
+dat9[is.na(dat9)]<-0
+cor(dat9$spending,dat9$pageviews)
+```
+
+### Q10
+
+#### Question
+
+Which customer purchased the largest number of coats?  In the event of a tie, include all of the users who reached this value.  Show their identifiers and total volume.
+
+#### Answer
+
+```{r part2_q10}
+customers_dat<-fread(input = 'customers.csv')
+dat10<-merge(products_dat,trans_Feb,by='product_id')
+dat10<-dat10[category=='coat',.(count=sum(quantity)),by='customer_id']
+#dat10[order(-count)]
+dat10[count==45,]
+```
+customer 'cnwsiHuMZvd1' purchased the largest number of coats, 50.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

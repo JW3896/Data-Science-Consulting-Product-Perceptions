@@ -1,0 +1,137 @@
+---
+title: "P1 parts 3 and 4"
+author: 
+output: 'html_document'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Part 3:  Generalization {.tabset}
+
+This part of the report will be directed internally to your team's engagement manager.  The idea is to present these approaches to your team. The work will then be conveyed to the client's technical team and middle managers who are working closely with you on the project.  Plan your communication accordingly.
+
+### Q1 
+
+#### Question
+
+Did you see any problems with the data set?  If so, whom would you report them to, and what would you do to address them?  What would be different about the next version of the data?
+
+#### Answer
+
+In the views and transactions data for each month, there is a column name called 'time', which is a little bit confusing. When a column name exists in two related tables, it's possible to link two tables with the column name. However, the name in these two tables have different meanings, veiwing time and transaction time. The number of time records differs a lot. 
+
+In addition, the customers data includes observations from 4 different regions, Northeast, Midwest, South, West, however, midwest is not at the same scale with other region categories. It's hard to tell the different between midwest and west. Even though R is able to do data wrangling with this problem, the analytic result wouln'd drive any business values. 
+
+To address these problems, we need to report to the internal team, especially the team managers to settle, also teams dealing with the  observation research should be updated with this information. Our data science consulting team needs to find out when the mistake happen. Is it happened when designing the survey quesions? The survey questions or the survey form needs to be revised to prevent the future dataset from having the same problem.  Or it's just because of the naming error? we can figure this our by renaming them. 
+
+The new version of the data would be
+January/February transactions -- 'time' changed to 'transaction_time'
+January/February views -- 'time' changed to 'pageviewing_time'
+observations from 4 different regions, Northeast, Northwest, South, West,
+
+
+### Q2
+
+#### Question
+
+Now generate a version of the same report using the data on views and transactions from the month of February 2020.
+
+In building this report, do not create a new RMarkdown file.  Instead, build a small .R file that allows the user to specify some parameters (e.g. the names of the files).  Then use the **render** function in the **rmarkdown** library to run the report.  Supply these new parameters as a list object in the **params** input.  Then you can make use of these parameters within the RMarkdown file.  For instance, if your file name is **"views -- January 2020.csv"** and it is stored as params\$views.file, then you can read the data with **fread(input = params\$views.file)**
+
+Use the **dir.create** function to build new subfolders to store each month's report.  
+Specify a name for the output file when calling the **render** function.  Use this method to generate the separate reports for January and February.
+
+Briefly describe your process for implemeting this automated approach.  What work would a non-technical user need to perform to run this script without your involvement?
+
+#### Answer
+
+
+
+
+
+
+### Q3
+
+#### Question
+
+What are the advantages of creating an automated approach to routine reporting?
+
+#### Answers
+
+Benefits of automated operations:
+*higher productivity
+*reliability
+*availability
+*increased performance
+*reduced operating costs
+The automated systems is able to help deliver optimized service to poeple who are not datascientists, such as marketing managers, CEO, and customers. In this way, the automated report would drive more business values out of the analytic results and provide a great presentation to buyers. 
+
+## Part 4:  Opportunities {.tabset}
+
+This part of the report will be directed externally to your client's senior leadership.  Your work will help to determine the future direction of the project and the company's contract with this client.  Plan your communication accordingly.
+
+### Q1
+
+#### Question
+
+How would you build on the reporting capabilities that you have created?  What would you design next?
+
+#### Answer
+
+According to the analysis in part2, we are able to understand the relationship between different varibles comprehensively. 
+
+1.Data visualizations based on current analysis would be more persuasive and more efficient for business analysis. 
+*Line chart for income distribution, age distribution
+*pie chart would help understanding the gender proportion,customer region proportion, and product category proportion.
+*bar chat works for diverse methods of counting the frequency of transactions or views by customers, products,categories,and time duration.
+*heat map would help describing the number of customers in different regions, or transaction/pageviewing frequency for customers in  different regions.
+
+2.Different machine learning models to make predictions
+*Predicting the effects of product price and customer income on monthlyspending with random forest, and use RMSE for comparing accuracy between linear regression model and random forest model.
+*Time series analysis on time,transaction frequency,transaction quantity, and the purchase rate, which would help predcting popular products.
+
+3.The ultimate report would have to deliver comprehensive visualizations prediction results to help understanding the purchasing preferences of different customer populations based on customer income level, age, region, and product prices.  An an overall feedback of the products and the perceptions of customers.
+
+
+
+### Q2
+
+#### Question
+
+What are some opportunities to learn valuable information and inform strategic decisions?  List a number of questions that you might explore.
+
+#### Answer
+
+1.what is the proportion of customers in different regions? age groups and income groups?
+2.what is the average spending level and from different genders, regions,income groups and age groups?
+3.what is the top 10 viwed products in each region, age groups, genders and income groups for every month?
+4.what is the top 10 purchased products in each age groups, genders and income groups every month?
+5. As we already know the 10 most viewed products for each category, 
+   what is the average purchase(transaction time/view time)rate of each category?
+   what is the average price level of each category?
+6.For customers who view the product and make purchases, what is the average purchase rate (transaction time/view time group by customer id) of these customers from different age groups and income groups? 
+7.what is the purchase rate (transaction/view group by product)of each product? what's the correlation between purchase rate and the product price? 
+8.By applying linear regression, random forest, what is the effect of income and product price on the purchase rate? compare the prediction accuracy of each machine learning model.
+
+All these questions above help decision makers target potential costomers, identify popular products and do optimization on unpopular products. The results related to customers' purchase ability and price preferences would allow decision makers to do some adjustment of the price.
+
+### Q3
+
+#### Question
+
+How would you approach other decisionmakers within the client's organization to assess their priorities and help them better utilize the available information? 
+
+#### Answer
+
+Delivering the current report to other decision makers in the organization would give them enogh information to understand the situation of the business. To better understanding their priorities, we need to keep them updated with the most recent analysis result with automated reports sending by email. Also, keep changing possible research questions and opportunitie at the end of the report for check. Only in this way, can we get precise feedbacks and understand their needs. 
+
+There should be logistics department, marketing department, product department and analytic department. 
+1.logistics department: Leaders in this department would be very focused on warehouse, and shipping problems. Analytic information related to regions, popular products, and the transaction time is what they need to make improvements on logistics design and arrangement. 
+2.marketing department: Leaders are market orented, information regarding customer targeting segmentation is relatively important for supporting their decision making.
+3.product research and design department: They would put much effort in doing research on products and customers, so analytic results associated with the most popular products and the lease popular products would be valuable to them. Also, correlation between the view-transaction rate and the price of each product could help them assess the product pricing.
+4.analytic department: they might expect some feedback of the data quality and the possible suggestions about information gathering and transformation. 
+
+
